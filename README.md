@@ -77,14 +77,6 @@ EXPO_PUBLIC_API_URL=https://api.freeapi.app/api/v1
 
 ---
 
-## ⚠️ Known Issues / Limitations
-
-- **Emulator WebView Performance**: WebViews in certain Android emulators may experience slight rendering delays compared to physical devices.
-- **API Rate Limiting**: As it uses a public FreeAPI, excessive rapid requests may occasionally return 429 status (handled by app retry logic).
-- **New Architecture Compatibility**: The app is optimized for React Native 0.81+, requiring latest bridge configurations for LegendList.
-
----
-
 ## 📸 Screenshots
 
 | Courses Feed | Course Details | Bookmarks | Profile |
