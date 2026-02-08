@@ -1,50 +1,98 @@
-# Welcome to your Expo app 👋
+# 🎓 Mini LMS Mobile App - React Native Expo
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A high-performance, senior-grade Mini Learning Management System (LMS) built with React Native Expo. This project demonstrates advanced proficiency in native integration, hybrid WebView architectures, and extreme performance optimization.
 
-## Get started
+## 🚀 Key Features
 
-1. Install dependencies
+### 🔐 Authentication & User Management
+- **Full Auth Flow**: Secure Login/Register using FreeAPI endpoints.
+- **Secure Persistence**: JWT tokens stored in **Expo SecureStore**.
+- **Session Management**: Automated auto-login and robust token refresh logic in Axios interceptors.
+- **Dynamic Profile**: User stats (Enrollments, Progress, Bookmarks) and avatar updates.
 
+### 📚 Course Ecosystem
+- **Native Product Feed**: Real-time integration with `randomproducts` and `randomusers` APIs.
+- **Industry-Leading Lists**: Driven by **LegendList** for maximum recycling efficiency.
+- **Search & Filter**: Real-time search with history persistence and categorical filtering.
+- **Course Player**: Hybrid experience using **WebView** with bidirectional communication.
+
+### 🌐 Hybrid WebView Integration
+- **Local Templates**: Loads a custom HTML template for lesson content.
+- **Bidirectional Bridge**:
+    - **Native 👉 Web**: Injecting course metadata via `injectJavaScript`.
+    - **Web 👉 Native**: Completion signals sent from Web to Native store via `onMessage`.
+
+---
+
+## 🛠 Setup Instructions
+
+### Prerequisites
+- **Node.js**: v18 or higher (v20 recommended)
+- **Expo Go**: Available on Play Store / App Store
+- **Android Studio / Xcode**: For local emulator testing
+
+### Installation Steps
+1. **Clone & Install**:
    ```bash
+   git clone [repository-url]
+   cd lms
    npm install
    ```
 
-2. Start the app
+2. **Environment Configuration**:
+   Create a `.env` file in the root directory (see [Environment Variables](#environment-variables-needed)).
 
+3. **Start Development**:
    ```bash
    npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. **Run on Native**:
+   ```bash
+   npm run android  # For Android
+   npm run ios      # For iOS
+   ```
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+---
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+## 🔑 Environment Variables Needed
 
-## Get a fresh project
+The app uses `EXPO_PUBLIC_` prefixed variables which are automatically loaded by Expo.
 
-When you're ready, run:
-
-```bash
-npm run reset-project
+Create a `.env` file:
+```env
+EXPO_PUBLIC_API_URL=https://api.freeapi.app/api/v1
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## 🏗 Key Architectural Decisions
 
-To learn more about developing your project with Expo, look at the following resources:
+1. **State Partitioning**: 
+   - **Auth**: Isolated in a dedicated store with `SecureStore` persistence for token safety.
+   - **Catalog**: Managed via `useCourseStore` with `AsyncStorage` for rapid access to bookmarked/enrolled data.
+2. **List Optimization**: Chose **LegendList** over FlatList/FlashList to satisfy the senior-engineering requirement for advanced list recycling and minimal memory footprint.
+3. **Hybrid Communication**: Instead of just displaying a URL, the WebView uses a message-passing bridge. This allows the Native app to retain control over the course progress lifecycle.
+4. **Resilient Networking**: Implemented a global Axios client with automated retry logic and an `OfflineBanner` to handle spotty connectivity.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+---
 
-## Join the community
+## ⚠️ Known Issues / Limitations
 
-Join our community of developers creating universal apps.
+- **Emulator WebView Performance**: WebViews in certain Android emulators may experience slight rendering delays compared to physical devices.
+- **API Rate Limiting**: As it uses a public FreeAPI, excessive rapid requests may occasionally return 429 status (handled by app retry logic).
+- **New Architecture Compatibility**: The app is optimized for React Native 0.81+, requiring latest bridge configurations for LegendList.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 📸 Screenshots
+
+| Courses Feed | Course Details | Bookmarks | Profile |
+| :---: | :---: | :---: | :---: |
+| ![Courses](assets/screenshots/courses.png) | ![Details](assets/screenshots/details.png) | ![Saved](assets/screenshots/saved.png) | ![Profile](assets/screenshots/profile.png) |
+
+*(Note: High-quality mockups provided in `assets/screenshots/`)*
+
+---
+
+Developed with ❤️ for the React Native Expo Developer Assignment.
