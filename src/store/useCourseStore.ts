@@ -41,10 +41,10 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     initialize: async () => {
         try {
             const [bookmarks, enrolled, progress, searchHistory] = await Promise.all([
-                Storage.getItem('bookmarks'),
-                Storage.getItem('enrolled'),
-                Storage.getItem('progress'),
-                Storage.getItem('search_history')
+                Storage.getItem<number[]>('bookmarks'),
+                Storage.getItem<number[]>('enrolled'),
+                Storage.getItem<Record<number, number>>('progress'),
+                Storage.getItem<string[]>('search_history')
             ]);
 
             if (bookmarks) set({ bookmarks });
@@ -54,7 +54,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
 
             get().getRecommendations();
 
-        } catch (error) {
+        } catch {
         }
     },
 
@@ -67,7 +67,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
                 try {
                     const instructor = await courseApi.getRandomInstructor();
                     return { productId: course.id, instructor };
-                } catch (err) {
+                } catch {
                     return { productId: course.id, instructor: null };
                 }
             });

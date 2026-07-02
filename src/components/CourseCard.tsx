@@ -155,3 +155,5 @@ export const CourseCard = React.memo<CourseCardProps>(({ course, instructor, onP
         </Pressable>
     );
 });
+
+CourseCard.displayName = 'CourseCard';

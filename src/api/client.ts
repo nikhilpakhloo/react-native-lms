@@ -35,6 +35,10 @@ apiClient.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        if (!originalRequest) {
+            return Promise.reject(error);
+        }
+
         // Handle 401 Unauthorized (Token expired or invalid)
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
@@ -55,7 +59,7 @@ apiClient.interceptors.response.use(
                         originalRequest.headers.Authorization = `Bearer ${accessToken}`;
                         return apiClient(originalRequest);
                     }
-                } catch (refreshError) {
+                } catch {
                     await useAuthStore.getState().logout();
                 }
             } else {

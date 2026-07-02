@@ -1,15 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { Animated, View, ViewStyle } from 'react-native';
 
 interface SkeletonProps {
-    width: number | string;
-    height: number | string;
+    width: NonNullable<ViewStyle['width']>;
+    height: NonNullable<ViewStyle['height']>;
     borderRadius?: number;
     style?: ViewStyle;
 }
 
 export const Skeleton: React.FC<SkeletonProps> = ({ width, height, borderRadius = 8, style }) => {
-    const opacity = new Animated.Value(0.3);
+    const opacity = useMemo(() => new Animated.Value(0.3), []);
 
     useEffect(() => {
         Animated.loop(
@@ -26,7 +26,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ width, height, borderRadius 
                 }),
             ])
         ).start();
-    }, []);
+    }, [opacity]);
 
     return (
         <Animated.View

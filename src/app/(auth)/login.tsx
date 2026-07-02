@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -17,6 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { login } from '../../api/auth';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { AUTH_COLORS, AUTH_STYLES, AUTH_TEXT_COLORS } from '../../constants/colors';
+import { AUTH_STRINGS } from '../../constants/strings';
 import { useKeyboard } from '../../hooks/useKeyboard';
 import { useAuthStore } from '../../store/useAuthStore';
 import { LoginFormData, loginSchema } from '../../utils/validation';
@@ -26,6 +27,7 @@ export default function LoginScreen() {
     const { keyboardHeight, keyboardHeightAnimated } = useKeyboard();
     const setAuth = useAuthStore((state) => state.setAuth);
     const [loading, setLoading] = useState(false);
+    const scrollViewRef = React.useRef<ScrollView>(null);
 
     const {
         control,
@@ -41,6 +43,7 @@ export default function LoginScreen() {
 
     const onSubmit = async (data: LoginFormData) => {
         setLoading(true);
+
         try {
             const response = await login(data);
 
@@ -55,22 +58,23 @@ export default function LoginScreen() {
 
                 await setAuth(user, response.data.accessToken, response.data.refreshToken);
                 router.replace('/(tabs)/courses');
-            } else {
-                Alert.alert('Login Failed', response.message || 'Invalid credentials');
+                return;
             }
+
+            Alert.alert(
+                AUTH_STRINGS.alerts.loginFailedTitle,
+                response.message || AUTH_STRINGS.alerts.invalidCredentials
+            );
         } catch (error: any) {
             Alert.alert(
-                'Login Failed',
-                error.response?.data?.message || 'Unable to login. Please try again.'
+                AUTH_STRINGS.alerts.loginFailedTitle,
+                error.response?.data?.message || AUTH_STRINGS.alerts.loginFailedFallback
             );
         } finally {
             setLoading(false);
         }
     };
 
-    const scrollViewRef = React.useRef<ScrollView>(null);
-
-    // Auto-scroll when keyboard opens
     React.useEffect(() => {
         if (keyboardHeight > 0) {
             setTimeout(() => {
@@ -80,12 +84,7 @@ export default function LoginScreen() {
     }, [keyboardHeight]);
 
     return (
-        <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
-            <LinearGradient
-                colors={['#3B82F6', '#1D4ED8', '#1E40AF']}
-                className="absolute top-0 left-0 right-0 h-64"
-            />
-
+        <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-950">
             <ScrollView
                 ref={scrollViewRef}
                 className="flex-1"
@@ -93,23 +92,33 @@ export default function LoginScreen() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                {/* Header */}
-                <View className="items-center pt-16 pb-8">
-                    <View className="w-20 h-20 bg-white rounded-full items-center justify-center shadow-lg mb-4">
-                        <Ionicons name="school" size={40} color="#3B82F6" />
+                <View
+                    className="items-center pt-14 pb-8 px-6"
+                    style={{ backgroundColor: AUTH_COLORS.loginHeaderBackground }}
+                >
+                    <View className="w-20 h-20 bg-white rounded-3xl items-center justify-center shadow-lg mb-4">
+                        <Ionicons name="school" size={40} color={AUTH_COLORS.loginIcon} />
                     </View>
-                    <Text className="text-3xl font-bold text-white mb-2">
-                        Welcome Back
+                    <Text
+                        className={AUTH_STYLES.headerTitle}
+                        style={{ color: AUTH_TEXT_COLORS.headerTitle }}
+                    >
+                        {AUTH_STRINGS.login.title}
                     </Text>
-                    <Text className="text-blue-100 text-base">
-                        Sign in to continue learning
+                    <Text
+                        className={AUTH_STYLES.headerSubtitle}
+                        style={{ color: AUTH_TEXT_COLORS.loginSubtitle }}
+                    >
+                        {AUTH_STRINGS.login.subtitle}
                     </Text>
                 </View>
 
-                {/* Form Container */}
-                <View className="flex-1 bg-white dark:bg-gray-900 rounded-t-3xl px-6 pt-8">
-                    <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Login
+                <View className="flex-1 bg-white dark:bg-gray-900 rounded-t-[32px] px-6 pt-8 pb-8 shadow-lg">
+                    <Text className="text-2xl font-extrabold text-gray-900 dark:text-white">
+                        {AUTH_STRINGS.login.formTitle}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-gray-400 mt-1 mb-7">
+                        {AUTH_STRINGS.login.formSubtitle}
                     </Text>
 
                     <Controller
@@ -117,8 +126,8 @@ export default function LoginScreen() {
                         name="username"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                label="Username"
-                                placeholder="Enter your username"
+                                label={AUTH_STRINGS.login.usernameLabel}
+                                placeholder={AUTH_STRINGS.login.usernamePlaceholder}
                                 icon="person"
                                 value={value}
                                 onChangeText={onChange}
@@ -135,8 +144,8 @@ export default function LoginScreen() {
                         name="password"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                label="Password"
-                                placeholder="Enter your password"
+                                label={AUTH_STRINGS.login.passwordLabel}
+                                placeholder={AUTH_STRINGS.login.passwordPlaceholder}
                                 icon="lock-closed"
                                 isPassword
                                 value={value}
@@ -148,27 +157,24 @@ export default function LoginScreen() {
                     />
 
                     <Button
-                        title="Login"
+                        title={AUTH_STRINGS.login.submit}
                         onPress={handleSubmit(onSubmit)}
                         loading={loading}
                         size="lg"
-                        className="mt-4"
+                        className="mt-5"
                     />
 
-                    <View className="flex-row justify-center items-center mt-6">
-                        <Text className="text-gray-600 dark:text-gray-400">
-                            Don't have an account?{' '}
+                    <View className="flex-row justify-center items-center mt-7">
+                        <Text className={AUTH_STYLES.promptText}>
+                            {AUTH_STRINGS.login.switchPrompt}
                         </Text>
-                        <TouchableOpacity
-                            onPress={() => router.push('/(auth)/register')}
-                        >
-                            <Text className="text-blue-500 font-bold">
-                                Sign Up
+                        <TouchableOpacity onPress={() => router.replace('/(auth)/register')}>
+                            <Text className={AUTH_STYLES.linkText}>
+                                {AUTH_STRINGS.login.switchAction}
                             </Text>
                         </TouchableOpacity>
                     </View>
 
-                    {/* Smooth Animated Spacer */}
                     <Animated.View style={{ height: keyboardHeightAnimated }} />
                 </View>
             </ScrollView>

@@ -33,7 +33,7 @@ export default function BookmarksScreen() {
                 Saved Courses
             </Text>
             <Text className="text-gray-500 dark:text-gray-400 mt-1">
-                Courses you've bookmarked for later
+                {"Courses you've bookmarked for later"}
             </Text>
         </View>
     );

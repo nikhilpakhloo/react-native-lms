@@ -1,104 +1,132 @@
-# 🎓 Mini LMS Mobile App - React Native Expo
+# Mini LMS Mobile App - React Native Expo
 
-A high-performance, senior-grade Mini Learning Management System (LMS) built with React Native Expo. This project demonstrates advanced proficiency in native integration, hybrid WebView architectures, and extreme performance optimization.
+A senior-grade Mini Learning Management System built with React Native Expo. The app is designed to demonstrate native Expo modules, WebView integration, secure persistence, state management, API resilience, and mobile performance practices.
 
-## 🚀 Key Features
+## Foundation Status
 
-### 🔐 Authentication & User Management
-- **Full Auth Flow**: Secure Login/Register using FreeAPI v1 endpoints.
-- **Secure Persistence**: JWT tokens stored in **Expo SecureStore** with hardware encryption.
-- **Session Management**: Automated auto-login and robust token refresh logic in Axios interceptors.
-- **Dynamic Profile**: User stats (Enrollments, Progress, Bookmarks) and avatar updates via API.
+- Expo SDK: 57
+- React Native: 0.86.0
+- React: 19.2.3
+- React Native Web: 0.21.0
+- TypeScript: strict mode enabled
+- Navigation: Expo Router
+- Styling: NativeWind
+- Android SDK target: compile SDK 36, target SDK 36
+- Android build properties: managed with `expo-build-properties`
 
-### 📚 Course Ecosystem
-- **Native Product Feed**: Real-time integration with `randomproducts` and `randomusers` APIs.
-- **Industry-Leading Lists**: Driven by **LegendList** for maximum recycling efficiency and 60fps scrolling.
-- **Search & Filter**: Real-time search with history persistence (AsyncStorage) and categorical filtering.
-- **Haptic Feedback**: Meaningful tactile feedback via **Expo Haptics** for all major interactions.
+Expo SDK 57 documents Node `22.13.x` as the minimum. The local environment is newer and satisfies that requirement.
 
-### 🌐 Hybrid WebView Integration
-- **Local Templates**: Loads a custom HTML template for lesson content for zero-latency loading.
-- **Bidirectional Bridge**:
-    - **Native 👉 Web**: Injecting course metadata via `injectJavaScript`.
-    - **Web 👉 Native**: Completion signals sent from Web to Native store via `onMessage`.
+## Key Features
 
-### � Proactive Engagement
-- **Engagement Engine**: Milestone notifications (e.g., when bookmarking the 5th course).
-- **Inactivity Reminders**: Scheduled notifications to encourage return after 24 hours of inactivity.
+### Authentication And User Management
 
----
+- Login and register flows through FreeAPI user endpoints.
+- Sensitive auth token persistence with Expo SecureStore.
+- Session initialization on app start.
+- Logout flow that clears sensitive auth state.
+- Profile screen with user stats and avatar-oriented native media support planned.
 
-## 🛠 Project Structure & Documentation
+### Course Ecosystem
 
-### Folder Architecture
+- Course data from `randomproducts`.
+- Instructor data from `randomusers`.
+- LegendList-based course browsing.
+- Search, filtering, pull-to-refresh, bookmarks, enrolled courses, and progress state.
+- AsyncStorage-backed non-sensitive app data.
+
+### Hybrid WebView Integration
+
+- Lesson player screen using `react-native-webview`.
+- Local or generated HTML lesson content.
+- Native-to-WebView metadata flow.
+- WebView-to-native progress and completion messages.
+- WebView error recovery path.
+
+### Native Features
+
+- Expo Notifications for bookmark milestones and inactivity reminders.
+- Expo Haptics for important interactions.
+- Network monitoring and offline banner.
+- Expo Image Picker for profile-related media flows.
+
+## Documentation
+
+The assignment execution plan lives in `docs/`:
+
+- `docs/assignment-phases.md`
+- `docs/assignment-requirements-matrix.md`
+- `docs/phase-01-foundation-and-sdk-baseline.md`
+- `docs/phase-02-api-auth-and-persistence.md`
+- `docs/phase-03-course-catalog-and-learning-ux.md`
+- `docs/phase-04-webview-player-and-native-features.md`
+- `docs/phase-05-performance-security-and-resilience.md`
+- `docs/phase-06-qa-polish-and-submission.md`
+
+## Project Structure
+
 ```text
 src/
-├── api/          # Axios client, interceptors, and typed API services
-├── app/          # Expo Router file-based navigation (Auth, Tabs, Player)
-├── components/   # Reusable UI (CourseCard, OfflineBanner, Skeletons)
-├── hooks/        # Custom hooks (useKeyboard, useNetworkStatus)
-├── store/        # Zustand state management (Auth, Course Catalog)
-└── utils/        # Services (Haptics, Notifications, Storage, Validation)
+  api/          Axios client, interceptors, and typed API services
+  app/          Expo Router routes
+  components/   Reusable UI components
+  hooks/        Custom React Native hooks
+  store/        Zustand state management
+  utils/        Haptics, notifications, storage, and validation helpers
 ```
 
-### Technical Compliance
-- **SDK**: Expo SDK 54 (Latest Stable)
-- **Language**: 100% TypeScript (Strict Mode)
-- **Platforms**: Universal support for **iOS** and **Android**
-- **Orientation**: Full support for both **Portrait** and **Landscape** modes
-- **Architecture**: New Architecture enabled for maximized performance
-
----
-
-## 🏗 Key Architectural Decisions
-
-1. **State Partitioning**: 
-   - **Auth**: Isolated in a dedicated store with `SecureStore` persistence for token safety.
-   - **Catalog**: Managed via `useCourseStore` with `AsyncStorage` for rapid access to bookmarked/enrolled data.
-2. **List Optimization**: Chose **LegendList** over FlatList/FlashList to satisfy senior-engineering requirements for advanced list recycling and minimal memory footprint.
-3. **Hybrid Communication**: Instead of just displaying a URL, the WebView uses a message-passing bridge. This allows the Native app to retain control over the course progress lifecycle.
-4. **Resilient Networking**: Implemented a global Axios client with automated retry logic and an `OfflineBanner` to handle spotty connectivity.
-5. **UI/UX Excellence**: Customized **NativeWind** (Tailwind CSS for React Native) for a premium, responsive, and dark-mode compatible design system.
-
----
-
-## 🛠 Setup & Installation
+## Setup
 
 ### Prerequisites
-- **Node.js**: v18+ 
-- **Package Manager**: npm or yarn
-- **Expo Go** or a development build
 
-### Installation
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/nikhilpakhloo/react-native-lms.git
-   cd react-native-lms
-   ```
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-3. **Configure Environment**:
-   Create a `.env` file:
-   ```env
-   EXPO_PUBLIC_API_URL=https://api.freeapi.app/api/v1
-   ```
-4. **Run the application**:
-   ```bash
-   npx expo start
-   ```
+- Node.js 22.13 or newer
+- npm
+- Android Studio or Expo-supported Android tooling for native builds
+- Android SDK platform 36
 
----
+This project currently points Android builds at Build Tools `36.1.0` because the local `36.0.0` installation was corrupted. Reinstalling Build Tools `36.0.0` via Android Studio SDK Manager is also valid for SDK 57.
 
-## 📸 Screenshots
+### Install
 
-| Courses Feed | Course Details | Bookmarks | Profile |
-| :---: | :---: | :---: | :---: |
-| ![Courses](assets/screenshots/courses.png) | ![Details](assets/screenshots/details.png) | ![Saved](assets/screenshots/saved.png) | ![Profile](assets/screenshots/profile.png) |
+```bash
+npm install
+```
 
-*(Note: Real screenshots should be placed in `assets/screenshots/`)*
+### Environment
 
----
+Create `.env`:
 
-Developed with ❤️ for the Mini LMS Developer Assignment.
+```env
+EXPO_PUBLIC_API_URL=https://api.freeapi.app/api/v1
+```
+
+### Run
+
+```bash
+npx expo start
+```
+
+For Android development builds:
+
+```bash
+npx expo run:android
+```
+
+## Validation
+
+Useful Phase 1 checks:
+
+```bash
+npx expo install --check
+npx expo-doctor@latest
+npx tsc --noEmit
+npm run lint
+npx expo prebuild --platform android --no-install
+```
+
+## Architecture Decisions
+
+1. Auth and catalog state are separated so sensitive session lifecycle does not mix with durable course preferences.
+2. SecureStore is reserved for credentials; AsyncStorage is used for non-sensitive app state.
+3. API behavior is centralized through an Axios client with token injection, refresh handling, timeout configuration, and retry paths.
+4. WebView content is treated as a boundary: messages should be validated before mutating native state.
+5. List performance is a first-class requirement, so catalog screens use LegendList and memoized row components.

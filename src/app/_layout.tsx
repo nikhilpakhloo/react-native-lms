@@ -5,12 +5,14 @@ import "../../global.css";
 import { useAuthStore } from "../store/useAuthStore";
 
 import { OfflineBanner } from "../components/OfflineBanner";
+import { ThemeProvider, useTheme } from "../providers/ThemeProvider";
 import { useCourseStore } from "../store/useCourseStore";
 import { NotificationService } from "../utils/notifications";
 
-export default function RootLayout() {
+function RootLayoutContent() {
   const segments = useSegments();
   const router = useRouter();
+  const theme = useTheme();
   const { isAuthenticated, isLoading, initialize: initAuth } = useAuthStore();
   const initCourse = useCourseStore((state) => state.initialize);
 
@@ -31,27 +33,25 @@ export default function RootLayout() {
     }, 5000);
 
     return () => clearTimeout(timeout);
-  }, []);
+  }, [initAuth, initCourse]);
 
   // Handle navigation based on auth state
   useEffect(() => {
     if (isLoading) return;
 
     const inAuthGroup = segments[0] === "(auth)";
-    const inTabsGroup = segments[0] === "(tabs)";
-
     if (!isAuthenticated && !inAuthGroup) {
       router.replace("/(auth)/login");
     } else if (isAuthenticated && inAuthGroup) {
       router.replace("/(tabs)/courses");
     }
-  }, [isAuthenticated, isLoading, segments]);
+  }, [isAuthenticated, isLoading, router, segments]);
 
   // Show loading screen while initializing
   if (isLoading) {
     return (
       <View className="flex-1 items-center justify-center bg-white dark:bg-gray-900">
-        <ActivityIndicator size="large" color="#3B82F6" />
+        <ActivityIndicator size="large" color={theme.colors.iconMuted} />
       </View>
     );
   }
@@ -65,5 +65,13 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
       </Stack>
     </>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <ThemeProvider>
+      <RootLayoutContent />
+    </ThemeProvider>
   );
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Animated, Keyboard, KeyboardEvent, Platform } from 'react-native';
 
 /**
@@ -8,7 +8,7 @@ import { Animated, Keyboard, KeyboardEvent, Platform } from 'react-native';
 export const useKeyboard = () => {
     const [keyboardHeight, setKeyboardHeight] = useState(0);
     const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-    const animatedHeight = useRef(new Animated.Value(0)).current;
+    const animatedHeight = useMemo(() => new Animated.Value(0), []);
 
     useEffect(() => {
         const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -26,7 +26,7 @@ export const useKeyboard = () => {
             }).start();
         };
 
-        const onKeyboardHide = (e: KeyboardEvent | any) => {
+        const onKeyboardHide = (e?: KeyboardEvent) => {
             setKeyboardHeight(0);
             setKeyboardVisible(false);
 
@@ -44,7 +44,7 @@ export const useKeyboard = () => {
             showSubscription.remove();
             hideSubscription.remove();
         };
-    }, []);
+    }, [animatedHeight]);
 
     return {
         keyboardHeight,

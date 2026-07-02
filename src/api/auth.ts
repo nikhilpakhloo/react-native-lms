@@ -98,7 +98,7 @@ export const getCurrentUser = async (): Promise<UserProfileResponse> => {
 export const logout = async (): Promise<void> => {
     try {
         await apiClient.post('/users/logout');
-    } catch (error) {
+    } catch {
         // Even if API fails, we'll clear local state
     }
 };

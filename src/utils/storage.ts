@@ -10,14 +10,14 @@ export const Storage = {
     async saveToken(key: string, value: string) {
         try {
             await SecureStore.setItemAsync(key, value);
-        } catch (error) {
+        } catch {
         }
     },
 
     async getToken(key: string) {
         try {
             return await SecureStore.getItemAsync(key);
-        } catch (error) {
+        } catch {
             return null;
         }
     },
@@ -25,24 +25,24 @@ export const Storage = {
     async removeToken(key: string) {
         try {
             await SecureStore.deleteItemAsync(key);
-        } catch (error) {
+        } catch {
         }
     },
 
     // For general app data (e.g., user preferences, bookmarks)
-    async setItem(key: string, value: any) {
+    async setItem<T>(key: string, value: T) {
         try {
             const jsonValue = JSON.stringify(value);
             await AsyncStorage.setItem(key, jsonValue);
-        } catch (error) {
+        } catch {
         }
     },
 
-    async getItem(key: string) {
+    async getItem<T>(key: string): Promise<T | null> {
         try {
             const jsonValue = await AsyncStorage.getItem(key);
             return jsonValue != null ? JSON.parse(jsonValue) : null;
-        } catch (error) {
+        } catch {
             return null;
         }
     },
@@ -50,7 +50,7 @@ export const Storage = {
     async removeItem(key: string) {
         try {
             await AsyncStorage.removeItem(key);
-        } catch (error) {
+        } catch {
         }
     },
 };

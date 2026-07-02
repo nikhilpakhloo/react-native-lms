@@ -1,11 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import NetInfo from '@react-native-community/netinfo';
-import React, { useEffect, useState } from 'react';
-import { Animated, Platform, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Animated, Platform, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export const OfflineBanner = () => {
     const [isConnected, setIsConnected] = useState<boolean | null>(true);
-    const [animation] = useState(new Animated.Value(-100)); // Start off-screen (top)
+    const animation = useMemo(() => new Animated.Value(-100), []);
 
     useEffect(() => {
         const unsubscribe = NetInfo.addEventListener(state => {
@@ -32,7 +33,7 @@ export const OfflineBanner = () => {
         });
 
         return () => unsubscribe();
-    }, []);
+    }, [animation]);
 
     if (isConnected === null) return null;
 

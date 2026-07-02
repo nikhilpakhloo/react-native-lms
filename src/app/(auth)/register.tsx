@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
@@ -17,6 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { register } from '../../api/auth';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
+import { AUTH_COLORS, AUTH_STYLES, AUTH_TEXT_COLORS } from '../../constants/colors';
+import { AUTH_STRINGS } from '../../constants/strings';
 import { useAuthStore } from '../../store/useAuthStore';
 import { RegisterFormData, registerSchema } from '../../utils/validation';
 
@@ -63,22 +64,25 @@ export default function RegisterScreen() {
                 await setAuth(user, response.data.accessToken, response.data.refreshToken);
 
                 Alert.alert(
-                    'Success!',
-                    'Your account has been created successfully.',
+                    AUTH_STRINGS.alerts.registrationSuccessTitle,
+                    AUTH_STRINGS.alerts.registrationSuccessMessage,
                     [
                         {
-                            text: 'OK',
+                            text: AUTH_STRINGS.alerts.ok,
                             onPress: () => router.replace('/(tabs)/courses'),
                         },
                     ]
                 );
             } else {
-                Alert.alert('Registration Failed', response.message || 'Unable to create account');
+                Alert.alert(
+                    AUTH_STRINGS.alerts.registrationFailedTitle,
+                    response.message || AUTH_STRINGS.alerts.registrationFailedShort
+                );
             }
         } catch (error: any) {
             Alert.alert(
-                'Registration Failed',
-                error.response?.data?.message || 'Unable to create account. Please try again.'
+                AUTH_STRINGS.alerts.registrationFailedTitle,
+                error.response?.data?.message || AUTH_STRINGS.alerts.registrationFailedFallback
             );
         } finally {
             setLoading(false);
@@ -97,12 +101,7 @@ export default function RegisterScreen() {
     }, [keyboardHeight]);
 
     return (
-        <SafeAreaView className="flex-1 bg-white dark:bg-gray-900">
-            <LinearGradient
-                colors={['#8B5CF6', '#6D28D9', '#5B21B6']}
-                className="absolute top-0 left-0 right-0 h-64"
-            />
-
+        <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-950">
             <ScrollView
                 ref={scrollViewRef}
                 className="flex-1"
@@ -110,23 +109,33 @@ export default function RegisterScreen() {
                 keyboardShouldPersistTaps="handled"
                 showsVerticalScrollIndicator={false}
             >
-                {/* Header */}
-                <View className="items-center pt-16 pb-8">
-                    <View className="w-20 h-20 bg-white rounded-full items-center justify-center shadow-lg mb-4">
-                        <Ionicons name="person-add" size={40} color="#8B5CF6" />
+                <View
+                    className="items-center pt-12 pb-6 px-6"
+                    style={{ backgroundColor: AUTH_COLORS.registerHeaderBackground }}
+                >
+                    <View className="w-20 h-20 bg-white rounded-3xl items-center justify-center shadow-lg mb-4">
+                        <Ionicons name="person-add" size={40} color={AUTH_COLORS.registerIcon} />
                     </View>
-                    <Text className="text-3xl font-bold text-white mb-2">
-                        Create Account
+                    <Text
+                        className={AUTH_STYLES.headerTitle}
+                        style={{ color: AUTH_TEXT_COLORS.headerTitle }}
+                    >
+                        {AUTH_STRINGS.register.title}
                     </Text>
-                    <Text className="text-purple-100 text-base">
-                        Start your learning journey today
+                    <Text
+                        className={AUTH_STYLES.headerSubtitle}
+                        style={{ color: AUTH_TEXT_COLORS.registerSubtitle }}
+                    >
+                        {AUTH_STRINGS.register.subtitle}
                     </Text>
                 </View>
 
-                {/* Form Container */}
-                <View className="flex-1 bg-white dark:bg-gray-900 rounded-t-3xl px-6 pt-8">
-                    <Text className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                        Sign Up
+                <View className="flex-1 bg-white dark:bg-gray-900 rounded-t-[32px] px-6 pt-7 pb-8 shadow-lg">
+                    <Text className="text-2xl font-extrabold text-gray-900 dark:text-white">
+                        {AUTH_STRINGS.register.formTitle}
+                    </Text>
+                    <Text className="text-gray-500 dark:text-gray-400 mt-1 mb-6">
+                        {AUTH_STRINGS.register.formSubtitle}
                     </Text>
 
                     {/* Username Input */}
@@ -135,8 +144,8 @@ export default function RegisterScreen() {
                         name="username"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                label="Username"
-                                placeholder="Choose a username"
+                                label={AUTH_STRINGS.register.usernameLabel}
+                                placeholder={AUTH_STRINGS.register.usernamePlaceholder}
                                 icon="person"
                                 value={value}
                                 onChangeText={(text) => onChange(text.toLowerCase())}
@@ -154,8 +163,8 @@ export default function RegisterScreen() {
                         name="email"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                label="Email"
-                                placeholder="Enter your email"
+                                label={AUTH_STRINGS.register.emailLabel}
+                                placeholder={AUTH_STRINGS.register.emailPlaceholder}
                                 icon="mail"
                                 value={value}
                                 onChangeText={(text) => onChange(text.toLowerCase())}
@@ -174,8 +183,8 @@ export default function RegisterScreen() {
                         name="password"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                label="Password"
-                                placeholder="Create a password"
+                                label={AUTH_STRINGS.register.passwordLabel}
+                                placeholder={AUTH_STRINGS.register.passwordPlaceholder}
                                 icon="lock-closed"
                                 isPassword
                                 value={value}
@@ -192,8 +201,8 @@ export default function RegisterScreen() {
                         name="confirmPassword"
                         render={({ field: { onChange, onBlur, value } }) => (
                             <Input
-                                label="Confirm Password"
-                                placeholder="Confirm your password"
+                                label={AUTH_STRINGS.register.confirmPasswordLabel}
+                                placeholder={AUTH_STRINGS.register.confirmPasswordPlaceholder}
                                 icon="lock-closed"
                                 isPassword
                                 value={value}
@@ -206,23 +215,22 @@ export default function RegisterScreen() {
 
                     {/* Register Button */}
                     <Button
-                        title="Create Account"
+                        title={AUTH_STRINGS.register.submit}
                         onPress={handleSubmit(onSubmit)}
                         loading={loading}
                         size="lg"
-                        className="mt-4"
+                        className="mt-5"
                     />
 
-                    {/* Login Link */}
-                    <View className="flex-row justify-center items-center mt-6 mb-8">
-                        <Text className="text-gray-600 dark:text-gray-400">
-                            Already have an account?{' '}
+                    <View className="flex-row justify-center items-center mt-7 mb-8">
+                        <Text className={AUTH_STYLES.promptText}>
+                            {AUTH_STRINGS.register.switchPrompt}
                         </Text>
                         <TouchableOpacity
-                            onPress={() => router.push('/(auth)/login')}
+                            onPress={() => router.replace('/(auth)/login')}
                         >
-                            <Text className="text-purple-500 font-bold">
-                                Login
+                            <Text className={AUTH_STYLES.linkText}>
+                                {AUTH_STRINGS.register.switchAction}
                             </Text>
                         </TouchableOpacity>
                     </View>

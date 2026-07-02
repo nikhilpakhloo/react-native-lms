@@ -49,7 +49,7 @@ const CoursesHeader = React.memo(({
                     Explore
                 </Text>
                 <Text className="text-gray-500 dark:text-gray-400 font-medium">
-                    Learn what's new today
+                    {"Learn what's new today"}
                 </Text>
             </View>
 
@@ -186,6 +186,7 @@ const CoursesHeader = React.memo(({
     </View>
 ));
 
+CoursesHeader.displayName = 'CoursesHeader';
 
 export default function CoursesScreen() {
     const {
