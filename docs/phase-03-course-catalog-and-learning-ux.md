@@ -42,3 +42,18 @@ Create the core LMS experience: browsing courses, viewing details, bookmarking, 
 - How bookmark and enroll actions remain responsive while still persisting durable state.
 - How list rendering avoids jank during search, refresh, and navigation.
 - How empty states guide users toward recovery instead of simply showing no data.
+
+## Current Completion Notes
+
+- Catalog uses `LegendList` with stable course IDs, estimated item sizing, pull-to-refresh, skeleton loading, and route-based navigation to details.
+- Search and category filtering now work together across course title, category, description, and instructor name.
+- API failures surface a recoverable catalog empty state with retry instead of silently falling through to an empty list.
+- Course snapshots and instructor snapshots are persisted in AsyncStorage so bookmarked and enrolled courses survive app restart even when the FreeAPI random endpoints return different records later.
+- Bookmark, enrollment, progress, and search history state remains optimistic in the UI and is persisted through the course store.
+- Bookmarked courses show progress when the same course is enrolled, and the detail screen shows enrolled progress before entering the player.
+- Enrolled courses, bookmarks, detail, and player routes share the same course store state so completion percentage stays consistent after player return.
+
+## Validation Result
+
+- `npx tsc --noEmit`: passed.
+- `npm run lint`: passed with no warnings.

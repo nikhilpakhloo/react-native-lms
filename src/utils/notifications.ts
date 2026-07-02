@@ -1,10 +1,11 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import { Storage } from './storage';
 
-// Configure how notifications are displayed when the app is foregrounded
+const INACTIVITY_NOTIFICATION_ID_KEY = 'inactivity_notification_id';
+
 Notifications.setNotificationHandler({
     handleNotification: async () => ({
-        shouldShowAlert: true,
         shouldPlaySound: true,
         shouldSetBadge: true,
         shouldShowBanner: true,
@@ -13,9 +14,6 @@ Notifications.setNotificationHandler({
 });
 
 export const NotificationService = {
-    /**
-     * Request permissions and setup (call on app start)
-     */
     async requestPermissions() {
         if (Platform.OS === 'web') return false;
 
@@ -27,17 +25,12 @@ export const NotificationService = {
             finalStatus = status;
         }
 
-        if (finalStatus !== 'granted') {
-            return false;
-        }
-
-        return true;
+        return finalStatus === 'granted';
     },
 
-    /**
-     * Schedule a simple local notification
-     */
     async sendLocalNotification(title: string, body: string, data = {}) {
+        if (Platform.OS === 'web') return;
+
         await Notifications.scheduleNotificationAsync({
             content: {
                 title,
@@ -45,28 +38,31 @@ export const NotificationService = {
                 data,
                 sound: 'default',
             },
-            trigger: null, // Send immediately
+            trigger: null,
         });
     },
 
-    /**
-     * Schedule a reminder for 24 hours of inactivity
-     */
     async scheduleInactivityReminder() {
-        // Clear previous reminders to reset the timer
-        await Notifications.cancelAllScheduledNotificationsAsync();
+        if (Platform.OS === 'web') return;
 
-        await Notifications.scheduleNotificationAsync({
+        const existingNotificationId = await Storage.getItem<string>(INACTIVITY_NOTIFICATION_ID_KEY);
+        if (existingNotificationId) {
+            await Notifications.cancelScheduledNotificationAsync(existingNotificationId);
+        }
+
+        const notificationId = await Notifications.scheduleNotificationAsync({
             content: {
-                title: "Still learning? 🚀",
+                title: 'Still learning?',
                 body: "It's been 24 hours since your last lesson. Keep up the momentum!",
                 sound: 'default',
             },
             trigger: {
                 type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                seconds: 24 * 60 * 60, // 24 hours
+                seconds: 24 * 60 * 60,
                 repeats: false,
             },
         });
-    }
+
+        await Storage.setItem(INACTIVITY_NOTIFICATION_ID_KEY, notificationId);
+    },
 };

@@ -1,9 +1,11 @@
 import { Stack, useRouter, useSegments } from "expo-router";
+import "../utils/reanimatedLogger";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import "../../global.css";
 import { useAuthStore } from "../store/useAuthStore";
 
+import { ErrorBoundary } from "../components/ErrorBoundary";
 import { OfflineBanner } from "../components/OfflineBanner";
 import { ThemeProvider, useTheme } from "../providers/ThemeProvider";
 import { useCourseStore } from "../store/useCourseStore";
@@ -59,11 +61,13 @@ function RootLayoutContent() {
   return (
     <>
       <OfflineBanner />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(auth)" />
-        <Stack.Screen name="(tabs)" />
-      </Stack>
+      <ErrorBoundary resetKey={segments.join("/")} title="Screen unavailable">
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(auth)" />
+          <Stack.Screen name="(tabs)" />
+        </Stack>
+      </ErrorBoundary>
     </>
   );
 }

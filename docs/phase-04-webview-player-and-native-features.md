@@ -50,3 +50,21 @@ Demonstrate the assignment's hybrid requirement by bridging native React Native 
 - How WebView messages are validated before progress is persisted.
 - How notification scheduling avoids repeated milestone spam.
 - How native features improve the LMS experience instead of appearing as disconnected examples.
+
+## Current Completion Notes
+
+- Player route renders local lesson HTML through `react-native-webview`.
+- Course metadata is sent through WebView headers and injected JavaScript, including course title, category, description, brand, and current progress.
+- Web content sends JSON messages for `ready`, `progress`, and `complete`; native code validates the message shape before mutating progress state.
+- WebView completion and native footer controls both update persisted course progress.
+- Player includes loading, recoverable WebView error UI, retry, offline banner copy, and guarded external navigation through `expo-web-browser`.
+- Native feedback is integrated through haptics and completion notifications.
+- Inactivity notifications now reset only the prior LMS reminder instead of cancelling all scheduled notifications.
+- Profile avatar image picking already covers the camera/image-picker assignment requirement with permission and cancellation handling.
+- Lesson resource metadata can be saved locally for offline planning through the player cloud-download action.
+- NetInfo is used globally through `OfflineBanner` and locally in the player for offline-aware copy and feedback.
+
+## Validation Result
+
+- `npx tsc --noEmit`: passed.
+- `npm run lint`: passed with no warnings.

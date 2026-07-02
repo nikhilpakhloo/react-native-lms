@@ -41,7 +41,7 @@ The goal is not to demonstrate that a screen can call an API. The app should sho
 | --- | --- | --- | --- |
 | Fetch instructors from `/api/v1/public/randomusers` | Typed course API maps random users into instructor models | Separates source API shape from UI model | Course service mapper |
 | Fetch courses from `/api/v1/public/randomproducts` | Typed course API maps products into course models | Lets the app present products as courses without leaking fake naming everywhere | Course service mapper |
-| Scrollable course list | LegendList catalog with stable keys and estimated item size | Better recycling and smoother large-list performance | Catalog screen list implementation |
+| Scrollable course list | FlatList catalog with stable keys, deduped data, and memoized course cards | Keeps catalog behavior predictable after random API responses while preserving native list performance | Catalog screen list implementation |
 | Course thumbnail, instructor, title, description, bookmark | Reusable memoized CourseCard | Keeps repeated list surfaces consistent | CourseCard component |
 | Pull-to-refresh | RefreshControl calls async fetch without blocking existing content | Mobile-native recovery path for stale or failed data | Catalog screen refresh behavior |
 | Search filtering | Local search over title, category, instructor, and description | Fast UX and no extra API dependency | Catalog state/selectors |
@@ -100,7 +100,7 @@ The goal is not to demonstrate that a screen can call an API. The app should sho
 
 | Requirement | Implementation Deliverable | Rationale | Proof Point |
 | --- | --- | --- | --- |
-| LegendList optimization | Use `keyExtractor`, estimated item size, stable render item, memoized row components | Reduces layout churn and memory pressure | Catalog list code |
+| FlatList optimization | Use `keyExtractor`, stable render item, deduped data, cached images, and memoized row components | Reduces layout churn, duplicate-key failures, and unnecessary image reloads | Catalog list code |
 | Proper keys | Course IDs and instructor IDs used consistently | Prevents incorrect recycling and stale UI | List key extractors |
 | Memoization | Memoize CourseCard and expensive selectors/callbacks where useful | Avoids re-rendering every card on unrelated state changes | Memoized components/selectors |
 | Pull-to-refresh without jank | Preserve current list while refreshing and show lightweight refresh state | Keeps mobile interactions smooth | Refresh implementation |

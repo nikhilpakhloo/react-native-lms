@@ -18,7 +18,7 @@ export default function MyCoursesScreen() {
         if (courses.length === 0) {
             fetchCourses(20);
         }
-    }, []);
+    }, [courses.length, fetchCourses]);
 
     // Calculate average progress
     const totalProgress = enrolledCourses.length > 0

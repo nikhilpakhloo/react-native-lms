@@ -48,3 +48,16 @@ Harden the app so it behaves like a production mobile application under real-wor
 - Which failures are retried automatically and which require explicit user action.
 - How timeouts, offline detection, and stale cached data work together.
 - How WebView navigation, message parsing, token storage, and logs follow a security-first mindset.
+
+## Current Completion Notes
+
+- Root navigation is wrapped in a reusable error boundary with a retry action and route-change reset.
+- Course detail bottom enrollment CTA now uses safe-area-aware padding and stable button sizing so it remains tappable on gesture-navigation devices.
+- API retry behavior is limited to idempotent methods (`GET`, `HEAD`, `OPTIONS`) so recoverable network retries do not replay unsafe mutations.
+- WebView player already validates inbound messages, guards external navigation, and exposes recoverable error UI from Phase 04.
+- SecureStore remains the only storage location for access and refresh tokens; AsyncStorage is used for non-sensitive app state and offline lesson metadata.
+
+## Validation Result
+
+- `npx tsc --noEmit`: passed.
+- `npm run lint`: passed with no warnings.

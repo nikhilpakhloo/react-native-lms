@@ -10,7 +10,7 @@ import { HapticService } from '../../utils/haptics';
 
 export default function BookmarksScreen() {
     const router = useRouter();
-    const { courses, bookmarks, instructors, fetchCourses } = useCourseStore();
+    const { courses, bookmarks, enrolled, instructors, fetchCourses, progress } = useCourseStore();
     const [refreshing, setRefreshing] = React.useState(false);
 
     const bookmarkedCourses = courses.filter(course => bookmarks.includes(course.id));
@@ -19,7 +19,7 @@ export default function BookmarksScreen() {
         if (courses.length === 0) {
             fetchCourses(20);
         }
-    }, []);
+    }, [courses.length, fetchCourses]);
 
     const onRefresh = async () => {
         setRefreshing(true);
@@ -62,6 +62,7 @@ export default function BookmarksScreen() {
                         <CourseCard
                             course={item}
                             instructor={instructors[item.id]}
+                            percentage={enrolled.includes(item.id) ? progress[item.id] || 0 : undefined}
                             onPress={() => {
                                 HapticService.medium();
                                 router.push({ pathname: '/course/[id]', params: { id: item.id.toString() } } as any);

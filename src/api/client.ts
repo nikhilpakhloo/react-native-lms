@@ -1,9 +1,37 @@
 import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
-import { refreshToken as refreshAuthToken } from './auth';
 
 // Base API URL from environment variables
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'https://api.freeapi.app/api/v1';
+
+interface RefreshTokenResponse {
+    statusCode: number;
+    data: {
+        accessToken: string;
+        refreshToken: string;
+    };
+    message: string;
+    success: boolean;
+}
+
+const refreshAuthToken = async (refreshToken: string): Promise<RefreshTokenResponse> => {
+    const response = await axios.post<RefreshTokenResponse>(
+        `${API_BASE_URL}/users/refresh-token`,
+        { refreshToken },
+        {
+            timeout: 15000,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        }
+    );
+    return response.data;
+};
+
+const isRetryableMethod = (method?: string) => {
+    const normalizedMethod = method?.toUpperCase() || 'GET';
+    return ['GET', 'HEAD', 'OPTIONS'].includes(normalizedMethod);
+};
 
 /**
  * Robust Axios client with interceptors for token injection,
@@ -70,7 +98,8 @@ apiClient.interceptors.response.use(
         // Standard retry logic for 5xx or Network failures
         if (
             (error.response?.status >= 500 || error.code === 'ECONNABORTED' || !error.response) &&
-            !originalRequest._retry
+            !originalRequest._retry &&
+            isRetryableMethod(originalRequest.method)
         ) {
             originalRequest._retry = true;
             // Retrying request...

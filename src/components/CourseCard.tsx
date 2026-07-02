@@ -16,12 +16,14 @@ interface CourseCardProps {
 export const CourseCard = React.memo<CourseCardProps>(({ course, instructor, onPress, percentage }) => {
     const { bookmarks, toggleBookmark } = useCourseStore();
     const isBookmarked = bookmarks.includes(course.id);
-    const [imageError, setImageError] = React.useState(false);
+    const [imageState, setImageState] = React.useState({ courseId: course.id, index: 0 });
+    const imageIndex = imageState.courseId === course.id ? imageState.index : 0;
 
-    // Fallback logic: Use first image if thumbnail fails
-    const imageSource = imageError && course.images?.[0]
-        ? { uri: course.images[0] }
-        : { uri: course.thumbnail };
+    const imageUris = React.useMemo(
+        () => [course.thumbnail, ...(course.images || [])].filter(Boolean).filter((uri, index, list) => list.indexOf(uri) === index),
+        [course.images, course.thumbnail]
+    );
+    const imageUri = imageUris[imageIndex];
 
     const showProgress = typeof percentage === 'number';
 
@@ -32,15 +34,18 @@ export const CourseCard = React.memo<CourseCardProps>(({ course, instructor, onP
         >
             {/* Thumbnail */}
             <View className="relative h-52 w-full bg-gray-100 dark:bg-gray-700">
-                {course.thumbnail && !imageError ? (
+                {imageUri ? (
                     <Image
-                        source={imageSource}
+                        source={{ uri: imageUri }}
                         className="w-full h-full"
                         contentFit="cover"
                         transition={300}
                         cachePolicy="memory-disk"
                         onError={() => {
-                            setImageError(true);
+                            setImageState((currentState) => ({
+                                courseId: course.id,
+                                index: currentState.courseId === course.id ? currentState.index + 1 : 1,
+                            }));
                         }}
                     />
                 ) : (

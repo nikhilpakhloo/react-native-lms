@@ -70,6 +70,22 @@ export interface ApiResponse<T> {
     success: boolean;
 }
 
+type ProductListPayload =
+    | Product[]
+    | {
+        products?: Product[];
+        docs?: Product[];
+        items?: Product[];
+    };
+
+const normalizeProducts = (payload: ProductListPayload): Product[] => {
+    if (Array.isArray(payload)) {
+        return payload;
+    }
+
+    return payload.products || payload.docs || payload.items || [];
+};
+
 /**
  * Course/Product API Service
  */
@@ -83,14 +99,34 @@ export const courseApi = {
     },
 
     /**
-     * Fetch multiple random products to populate the course list
-     * Since the API only returns one random product at a time for this specific endpoint,
-     * we might need to call it multiple times or use a different endpoint for lists.
-     * For now, following the specific endpoint provided by the user.
+     * Fetch a product list to populate the course catalog.
+     * Falls back to random products only if the list endpoint is unavailable.
      */
     getRandomCourses: async (count: number = 10): Promise<Product[]> => {
-        const promises = Array.from({ length: count }, () => courseApi.getRandomCourse());
-        return Promise.all(promises);
+        try {
+            const response = await apiClient.get<ApiResponse<ProductListPayload> | ProductListPayload>(
+                '/public/randomproducts',
+                { params: { limit: count } }
+            );
+            const payload = 'data' in response.data ? response.data.data : response.data;
+            const products = normalizeProducts(payload).slice(0, count);
+
+            if (products.length > 0) {
+                return products;
+            }
+        } catch {
+            // Fall back to the single random product endpoint below.
+        }
+
+        const productMap = new Map<number, Product>();
+        const attempts = count * 2;
+
+        for (let index = 0; index < attempts && productMap.size < count; index += 1) {
+            const course = await courseApi.getRandomCourse();
+            productMap.set(course.id, course);
+        }
+
+        return Array.from(productMap.values());
     },
 
     /**

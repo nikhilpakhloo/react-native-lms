@@ -4,6 +4,18 @@ import { HapticService } from '../utils/haptics';
 import { NotificationService } from '../utils/notifications';
 import { Storage } from '../utils/storage';
 
+const COURSE_STORAGE_KEY = 'courses';
+const INSTRUCTOR_STORAGE_KEY = 'course_instructors';
+const BOOKMARKS_STORAGE_KEY = 'bookmarks';
+const ENROLLED_STORAGE_KEY = 'enrolled';
+const PROGRESS_STORAGE_KEY = 'progress';
+const SEARCH_HISTORY_STORAGE_KEY = 'search_history';
+
+const dedupeCourses = (courses: Product[]) =>
+    courses.filter(
+        (course, index, list) => list.findIndex(candidate => candidate.id === course.id) === index
+    );
+
 interface CourseState {
     courses: Product[];
     instructors: Record<number, RandomUser>; // productId -> RandomUser
@@ -40,13 +52,17 @@ export const useCourseStore = create<CourseState>((set, get) => ({
 
     initialize: async () => {
         try {
-            const [bookmarks, enrolled, progress, searchHistory] = await Promise.all([
-                Storage.getItem<number[]>('bookmarks'),
-                Storage.getItem<number[]>('enrolled'),
-                Storage.getItem<Record<number, number>>('progress'),
-                Storage.getItem<string[]>('search_history')
+            const [courses, instructors, bookmarks, enrolled, progress, searchHistory] = await Promise.all([
+                Storage.getItem<Product[]>(COURSE_STORAGE_KEY),
+                Storage.getItem<Record<number, RandomUser>>(INSTRUCTOR_STORAGE_KEY),
+                Storage.getItem<number[]>(BOOKMARKS_STORAGE_KEY),
+                Storage.getItem<number[]>(ENROLLED_STORAGE_KEY),
+                Storage.getItem<Record<number, number>>(PROGRESS_STORAGE_KEY),
+                Storage.getItem<string[]>(SEARCH_HISTORY_STORAGE_KEY)
             ]);
 
+            if (courses) set({ courses: dedupeCourses(courses) });
+            if (instructors) set({ instructors });
             if (bookmarks) set({ bookmarks });
             if (enrolled) set({ enrolled });
             if (progress) set({ progress });
@@ -61,7 +77,11 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     fetchCourses: async (count = 10) => {
         set({ loading: true, error: null });
         try {
-            const fetchedCourses = await courseApi.getRandomCourses(count);
+            const fetchedCourses = dedupeCourses(await courseApi.getRandomCourses(count));
+            const existingCourses = get().courses;
+            const savedIds = new Set([...get().bookmarks, ...get().enrolled]);
+            const savedCourses = existingCourses.filter(course => savedIds.has(course.id));
+            const mergedCourses = dedupeCourses([...savedCourses, ...fetchedCourses]);
 
             const instructorPromises = fetchedCourses.map(async (course) => {
                 try {
@@ -73,7 +93,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
             });
 
             const instructorsResults = await Promise.all(instructorPromises);
-            const instructorsMap: Record<number, RandomUser> = {};
+            const instructorsMap: Record<number, RandomUser> = { ...get().instructors };
 
             instructorsResults.forEach(({ productId, instructor }) => {
                 if (instructor) {
@@ -82,11 +102,13 @@ export const useCourseStore = create<CourseState>((set, get) => ({
             });
 
             set({
-                courses: fetchedCourses,
+                courses: mergedCourses,
                 instructors: instructorsMap,
                 loading: false
             });
 
+            Storage.setItem(COURSE_STORAGE_KEY, mergedCourses);
+            Storage.setItem(INSTRUCTOR_STORAGE_KEY, instructorsMap);
             get().getRecommendations();
 
         } catch (error: any) {
@@ -102,7 +124,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
             : [...state.bookmarks, productId];
 
         set({ bookmarks: nextBookmarks });
-        Storage.setItem('bookmarks', nextBookmarks);
+        Storage.setItem(BOOKMARKS_STORAGE_KEY, nextBookmarks);
 
         state.getRecommendations();
 
@@ -139,8 +161,8 @@ export const useCourseStore = create<CourseState>((set, get) => ({
             progress: nextProgress
         });
 
-        Storage.setItem('enrolled', nextEnrolled);
-        Storage.setItem('progress', nextProgress);
+        Storage.setItem(ENROLLED_STORAGE_KEY, nextEnrolled);
+        Storage.setItem(PROGRESS_STORAGE_KEY, nextProgress);
 
         state.getRecommendations();
         HapticService.success();
@@ -149,7 +171,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     updateProgress: (productId: number, percent: number) => {
         set((state) => {
             const nextProgress = { ...state.progress, [productId]: percent };
-            Storage.setItem('progress', nextProgress);
+            Storage.setItem(PROGRESS_STORAGE_KEY, nextProgress);
 
             if (percent === 100) {
                 HapticService.success();
@@ -167,14 +189,14 @@ export const useCourseStore = create<CourseState>((set, get) => ({
         set((state) => {
             const filteredHistory = state.searchHistory.filter(q => q !== query);
             const nextHistory = [query, ...filteredHistory].slice(0, 10); // Keep last 10
-            Storage.setItem('search_history', nextHistory);
+            Storage.setItem(SEARCH_HISTORY_STORAGE_KEY, nextHistory);
             return { searchHistory: nextHistory };
         });
     },
 
     clearSearchHistory: () => {
         set({ searchHistory: [] });
-        Storage.setItem('search_history', []);
+        Storage.setItem(SEARCH_HISTORY_STORAGE_KEY, []);
     },
 
     getRecommendations: () => {
